@@ -1,0 +1,54 @@
+# ~/.config/lsd/colors.yaml
+# Grayscale mappings for files and directories
+user: 245
+group: 245
+permission:
+  read: 248
+  write: 245
+  exec: 240
+  exec-sticky: 240
+  no-access: 238
+  octal: 245
+  acl: 245
+  context: 245
+date:
+  hour-old: 245
+  day-old: 248
+  older: 240
+size:
+  none: 240
+  small: 245
+  medium: 248
+  large: 252
+inode:
+  valid: 245
+  invalid: 240
+links:
+  valid: 248
+  invalid: 240
+tree-edge: 240
+git-status:
+  default: 245
+  unmodified: 240
+  ignored: 238
+  new-in-index: 250
+  new-in-worktree: 250
+  typechange: 248
+  deleted: 240
+  renamed: 248
+  modified: 248
+  conflicted: 252
+filetype:
+  file:
+    exec-uid: 252
+    uid-no-exec: 252
+    exec-gid: 252
+    gid-no-exec: 252
+    file: 252
+  dir:
+    uid: 248
+    no-uid: 248
+  link:
+    is-dir: 245
+    broken: 240
+  special: 240

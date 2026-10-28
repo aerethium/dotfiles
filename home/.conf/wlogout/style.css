@@ -1,0 +1,59 @@
+* {
+	background-image: none;
+	transition: 0;
+}
+window {
+	background-color: rgba(12, 12, 12, 0.3);
+	background-image: url('./noise.png');
+}
+button {
+	color: #d4d4d4;
+	background-color: rgba(252, 251, 254, 0.15);
+	border: 0 solid #d4d4d4;
+	border-radius: 3rem;
+	margin: 1.2rem;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 35%;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	font-family: Roboto;
+	font-size: 1.7rem;
+	min-width: 150px;
+	min-height: 150px;
+	transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+button:hover {
+	background-color: rgba(212, 212, 212, 0.85);
+	margin: 0.7rem;
+	box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.35);
+	outline-style: none;
+}
+button:focus {
+	background-color: rgba(212, 212, 212, 0.85);
+	margin: 0.7rem;
+	box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.35);
+	outline-style: none;
+}
+button:active {
+	background-color: rgba(212, 212, 212, 0.45);
+	margin: 1rem;
+	outline-style: none;
+}
+#lock {
+	background-image: url("./icons/lock.png");
+}
+#logout {
+	background-image: url("./icons/logout.png");
+}
+#suspend {
+	background-image: url("./icons/suspend.png");
+}
+#hibernate {
+	background-image: url("./icons/hibernate.png");
+}
+#shutdown {
+	background-image: url("./icons/shutdown.png");
+}
+#reboot {
+	background-image: url("./icons/reboot.png");
+}
