@@ -1,313 +1,289 @@
-# Arch Linux + Hyprland installation guide
-
-My "PERSONAL" notes for a manual Arch Linux install (btrfs, GRUB, UEFI) followed by the full Hyprland setup.
-
-1. [Part 1: Manual Arch installation](#part-1-manual-arch-installation)
-2. [Part 2: Post-install setup](#part-2-post-install-setup)
-
 ---
 
-# Part 1: Manual Arch installation
+#formating_partition
+- lsblk
+- cfdisk /dev/nvme0n1
+- mkfs.btrfs /dev/nvme(root part)
+- mount /dev/nvme(root part) /mnt
+- cd /mnt
+- btrfs subvolume create @
+- btrfs subvolume create @home
+- cd
+- pwd
+- umount /mnt
+- mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@ /dev/nvme(root part) /mnt
+- mkdir /mnt/home
+- mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@home /dev/nvme(root part) /mnt/home
+- btrfs subvolume list /mnt
+- mkfs.fat -F32 /dev/nvme(efi part)
+- mkswap /dev/nvme(swap part)
+- swapon /dev/nvme(swap part)
+- mkdir /mnt/boot
+- mount /dev/nvme(efi part) /mnt/boot
+- lsblk
+- lsblk -f
 
-Replace `<root>`, `<efi>` and `<swap>` with your partitions (for example `nvme0n1p2`), and `<username>` / `<hostname>` with your own values.
+#connect_to_wifi
+- iwctl station wlan0 scan
+- iwctl station wlan0 get-networks
+- iwctl --passphrase 'password' station wlan0 connect 'wifi ssid'
 
-## 1. Partition and format
+#linux_firmware
+- pacstrap /mnt base linux linux-firmware
+- genfstab -U /mnt > /mnt/etc/fstab
+- arch-chroot /mnt
 
-```bash
-lsblk
-cfdisk /dev/nvme0n1
-```
+#arch_chrooting
+- passwd
+- ln -sf /usr/share/zoneinfo/Africa/Casablanca /etc/localtime
+- hwclock --systohc
+- echo "KEYMAP=us" > /etc/vconsole.conf
+- pacman -S nvim
+- nvim /etc/locale.gen
+- uncomment: en_US.UTF-8 UTF-8
+- locale-gen
+- echo "LANG=en_US.UTF-8" > /etc/locale.conf
+- echo "user name" > /etc/hostname
+- pacman -S grub efibootmgr sudo nvim  networkmanager git base-devel os-prober
+- systemctl enable NetworkManager.service
 
-Create the btrfs root with `@` and `@home` subvolumes:
+#grub
+- grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+- nvim /etc/default/grub
+- GRUB_TIMEOUT=5 from 5 to 7
+- add this line:
+- GRUB_DISABLE_OS_PROBER=false
+- grub-mkconfig -o /boot/grub/grub.cfg
 
-```bash
-mkfs.btrfs /dev/<root>
-mount /dev/<root> /mnt
-cd /mnt
-btrfs subvolume create @
-btrfs subvolume create @home
-cd
-umount /mnt
-```
-
-Mount the subvolumes:
-
-```bash
-mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@ /dev/<root> /mnt
-mkdir /mnt/home
-mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@home /dev/<root> /mnt/home
-btrfs subvolume list /mnt
-```
-
-Format and mount the EFI partition, set up swap:
-
-```bash
-mkfs.fat -F32 /dev/<efi>
-mkswap /dev/<swap>
-swapon /dev/<swap>
-mkdir /mnt/boot
-mount /dev/<efi> /mnt/boot
-lsblk -f
-```
-
-## 2. Connect to Wi-Fi
-
-```bash
-iwctl station wlan0 scan
-iwctl station wlan0 get-networks
-iwctl --passphrase '<password>' station wlan0 connect '<ssid>'
-```
-
-## 3. Install the base system
-
-```bash
-pacstrap /mnt base linux linux-firmware btrfs-progs amd-ucode
-genfstab -U /mnt > /mnt/etc/fstab
-arch-chroot /mnt
-```
-
-> `amd-ucode` is for AMD CPUs. Use `intel-ucode` on Intel.
-
-## 4. Configure the system (inside the chroot)
-
-```bash
-passwd
-ln -sf /usr/share/zoneinfo/Africa/Casablanca /etc/localtime
-hwclock --systohc
-echo "KEYMAP=us" > /etc/vconsole.conf
-pacman -S neovim
-```
-
-Uncomment `en_US.UTF-8 UTF-8`, then generate the locale:
-
-```bash
-nvim /etc/locale.gen
-locale-gen
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
-echo "<hostname>" > /etc/hostname
-```
-
-Install the essentials and enable networking:
-
-```bash
-pacman -S grub efibootmgr sudo networkmanager git base-devel os-prober
-systemctl enable NetworkManager.service
-```
-
-## 5. Bootloader (GRUB)
-
-```bash
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-nvim /etc/default/grub
-```
-
-In `/etc/default/grub`:
-
-- set `GRUB_TIMEOUT=7`
-- add this line: `GRUB_DISABLE_OS_PROBER=false`
-
-```bash
-grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-## 6. Final touches
-
-```bash
-useradd -m -G wheel -s /bin/bash <username>
-passwd <username>
-EDITOR=nvim visudo
-```
-
-In `visudo`, uncomment this line (it is under "Uncomment to allow members of group wheel to execute any command"):
-
-```
-%wheel ALL=(ALL:ALL) ALL
-```
-
-```bash
-usermod -aG audio,video,storage <username>
-su <username>
-sudo pacman -Syu
-exit        # leave the user shell
-exit        # leave the chroot
-umount -R /mnt
-reboot
-```
+#final_touches
+- useradd -m -G wheel -s /bin/bash user name
+- passwd user name
+- EDITOR=nvim visudo
+- uncomment this line: %wheel ALL=(ALL:ALL) ALL, its under: uncomment to allow members of group wheel to execute any commande
+- usermod -aG audio,video,storage user name
+- su user name
+- sudo pacman -Syyu
+- exit
+- exit
+- umount -R /mnt
+- reboot 
 
 ---
+- [?] whats required:
+- ==🟣a working minimal arch installation with these packages: ==
 
-# Part 2: Post-install setup
-
-## Requirements
-
-A working minimal Arch installation (see [Part 1](#part-1-manual-arch-installation)) with these packages:
-
-```bash
-sudo pacman -S neovim networkmanager git base-devel rust cargo python
 ```
-
-## 1. Connect to Wi-Fi
-
-```bash
-nmcli device wifi connect "<ssid>" password "<password>"
+sudo pacman -S nvim networkmanager git base-devel rust cargo python
 ```
-
-## 2. Enable multilib
-
-```bash
+- see the installation steps in: [[manual installation]]
+# ==🟠connecting to wifi==
+```
+nmcli device wifi connect "wifi ssid" password "password"
+```
+# ==🟠enabling multilib==
+```
 sudo nvim /etc/pacman.conf
 ```
-
-Uncomment these two lines:
-
-```ini
+ - uncomment these two lines:
+ ```
 [multilib]
 Include = /etc/pacman.d/mirrorlist
+ ```
+
+```
+sudo pcman -Syu
 ```
 
-```bash
-sudo pacman -Syu
+# ==🟠compiling paru from source==
 ```
-
-## 3. Compile paru from source
-
-```bash
 git clone https://aur.archlinux.org/paru.git
+```
+
+```
 cd paru
+```
+
+```
 makepkg -si
 ```
 
-## 4. Install the essential packages for a working Hyprland
-
-```bash
-sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum
+# ==🟠installing essential packages for a working hyprland==
+```
+sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd cava network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum 
 ```
 
-```bash
-paru -S vicinae-bin zen-browser-bin whatsapp-linux-desktop-bin waybar-cava mpvpaper wttrbar wlogout waypaper libinput-gestures obsidian-bin
 ```
-
-## 5. Start the essential services
-
-```bash
+paru -S vicinae-bin zen-browser-bin whatsapp-linux-desktop-bin waybar-cava mpvpaper wttrbar wlogout waypaper libinput-gestures obsidian-bin linux-wallpaperengine-git
+```
+# ==🟠starting essential services==
+```
 sudo systemctl enable sddm
+```
+
+``` 
 sudo systemctl enable bluetooth
+```
+
+```
 sudo systemctl enable power-profiles-daemon
+```
+
+```
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
+```
+
+```
 systemctl --user enable syncthing
+```
+
+```
 systemctl --user start syncthing
+```
+
+```
 fc-cache -fv
+```
+
+```
 sudo loginctl enable-linger $USER
-reboot
 ```
 
-## 6. Set up a working Obsidian vault
+`reboot`
 
-1. Copy or clone the `hypr`, `kitty`, `nvim`, `waybar` and `wlogout` folders into `~/.config`.
-2. `reboot`
-3. Run `syncthing` in the terminal.
-4. Copy the Obsidian vault folder from the phone to the laptop storage.
-5. Set up the Obsidian folder in the Syncthing settings.
-6. Test that send/receive works.
-7. Continue with the next steps.
-
-## 7. Install additional apps and packages
-
-```bash
-sudo pacman -S ffmpeg mpv awww fzf yazi zoxide rclone btop ffmpegthumbnailer speech-dispatcher python-pipx python-pip man-db man-pages gdb clang testdisk android-tools unzip tree flatpak kdeconnect docker docker-compose imv sushi ollama nodejs npm lsd veracrypt steam timeshift gparted cmatrix nvtop obs-studio scrcpy torbrowser-launcher mangohud baobab qbittorrent wine winetricks libvirt qemu-full virt-manager virt-viewer dnsmasq ebtables iptables-nft swtpm edk2-ovmf virt-install qemu-img libosinfo guestfs-tools tauon-music-box gimp gnome-software nwg-look gnome-themes-extra dconf xdg-desktop-portal-gtk adw-gtk-theme gnome-tweaks gnome-control-center extension-manager gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav zsh zsh-autosuggestions zsh-completions zsh-doc zsh-history-substring-search zsh-lovers zsh-syntax-highlighting zshdb
+# ==🟠setuping a working obsidian vault==
+- copy or clone the ==🟣hypr, kitty, nvim, waybar, wlogout== folders to the ==🟣~/.config== dir
+- `reboot`
+- type ==🟣syncthing== in the terminal
+- copy the obsidian vault folder from my phone to the laptop storage
+- set up the obsidian folder syncthing settings
+- test its working in send/receive
+- proceed the following
+# ==🟠installing additional apps and packages==
+```
+sudo pacman -S ffmpeg mpv awww fzf yazi zoxide rclone btop ffmpegthumbnailer speech-dispatcher python-pipx python-pip man-db man-pages gdb clang testdisk android-tools unzip tree flatpak kdeconnect docker docker-compose imv sushi ollama nodejs npm lsd veracrypt steam timeshift gparted cmatrix nvtop mpv obs-studio scrcpy torbrowser-launcher mangohud baobab qbittorrent wine winetricks libvirt qemu-full virt-manager virt-viewer libvirt dnsmasq ebtables iptables-nft swtpm edk2-ovmf virt-install qemu-img libosinfo guestfs-tools tauon-music-box gimp gnome-software flatpak nwg-look qt5ct qt6ct gnome-themes-extra dconf xdg-desktop-portal-gtk adw-gtk-theme gnome-tweaks gnome-control-center extension-manager gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav sushi zsh zsh-autosuggestions zsh-completions zsh-doc zsh-history-substring-search zsh-lovers zsh-syntax-highlighting zshdb discord
 ```
 
-```bash
-paru -S syncthingtray metadata-cleaner hypnotix waydroid freedownloadmanager ventoy-bin neofetch fastfetch mission-center angrysearch cpu-x kdiskmark geforcenow-electron-bin an-anime-game-launcher-bin goverlay peaclock localsend-bin lutris sklauncher-bin xclicker pacseek-bin qdiskinfo cpio cmake meson gcc lavat-git fetch-git vencord-installer telegram-desktop-bin pipes.sh ryzenadj discord
+```
+paru -S rclone fuse3 syncthingtray metadata-cleaner hypnotix waydroid freedownloadmanager ventoy-bin neofetch fastfetch mission-center angrysearch cpu-x kdiskmark geforcenow-electron-bin an-anime-game-launcher-bin goverlay peaclock localsend-bin lutris sklauncher-bin xclicker pacseek-bin qdiskinfo cpio cmake meson gcc lavat-git fetch-git vencord-installer telegram-desktop-bin pipes.sh ryzenadj wine brokkr-flash-appimage
 ```
 
-```bash
+```
 pipx ensurepath
+```
+
+```
 pipx install norminette
+```
+
+```
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+```
+
+```
 flatpak update
-reboot
 ```
 
-```bash
+`reboot`
+
+```
 flatpak install flathub -y io.github.kolunmi.Bazaar org.gnome.Maps org.vinegarhq.Sober com.usebottles.bottles com.github.tchx84.Flatseal org.gnome.Loupe com.jeffser.Alpaca com.github.tenderowl.frog de.schmidhuberj.tubefeeder com.rafaelmardojai.Blanket io.bassi.Amberol io.github.seadve.Mousai org.gnome.Music org.gnome.Showtime org.gnome.clocks org.gnome.Snapshot org.gnome.Calendar org.gnome.Calculator org.nickvision.tubeconverter app.twintaillauncher.ttl org.kde.kdenlive io.github.zarestia_dev.rclone-manager
+
 ```
 
-## 8. Install hyprexpo
-
-```bash
+# ==🟠installing hyprexpo==
+```
 hyprpm update
+```
+
+```
 hyprpm add https://github.com/sandwichfarm/hyprexpo
+```
+
+```
 hyprpm enable hyprexpo
+```
+
+```
 hyprpm reload
 ```
 
-## 9. Dark theme and macOS Tahoe dark theme
+# ==🟠applying dark theme and mac os tahoe dark theme==
 
-> [!IMPORTANT]
-> Run these in the right order.
-
-### macOS Tahoe dark theme
-
-```bash
+- [!] run them in the right order
+### ==🟣mac os tahoe dark theme==
+```
 git clone https://github.com/kayozxo/GNOME-macOS-Tahoe
+```
+
+```
 cd GNOME-macOS-Tahoe
+```
+
+```
 ./install.sh
 ```
 
-Choose the dark orange theme.
+- choose the dark orange theme
 
-### Dark theme
-
-```bash
+### ==🟣dark theme==
+```
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+```
+
+```
 gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
+```
+
+```
 mkdir -p ~/.config/xdg-desktop-portal
+```
+
+```
 nvim ~/.config/xdg-desktop-portal/hyprland-portals.conf
 ```
 
-Add these lines:
-
-```ini
+- add these lines:
+```
 [preferred]
 default=hyprland;gtk
 org.freedesktop.impl.portal.Settings=gtk
 ```
 
-## 10. Twilight cursor
-
-1. Download it from <https://www.gnome-look.org/p/1607387> and unzip it.
-2. Install and apply it:
-
-```bash
-sudo cp -r ~/Downloads/Twilight-cursors /usr/share/icons/
-hyprctl setcursor Twilight-cursors 24
+# ==🟠twilight cursor==
+- download: `https://www.gnome-look.org/p/1607387`
+- unzip it
+- sudo cp -r ~/Downloads/Twilight-cursors /usr/share/icons/
+- hyprctl setcursor Twilight-cursors 24
+```
 sudo nvim /etc/environment
 ```
-
-Add these lines to `/etc/environment`:
-
+- add these lines:
 ```
-XCURSOR_THEME=Twilight-cursors
+XCURSOR_THEME=Twilight-cursors 
 XCURSOR_SIZE=24
 ```
 
-```bash
+```
 gsettings set org.gnome.desktop.interface cursor-theme 'Twilight-cursors'
-reboot
 ```
 
-## 11. Oh My Zsh
+`reboot`
 
-```bash
+# ==🟠oh my zsh==
+```
 sudo usermod -s /usr/bin/zsh $USER
+```
+
+```
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+```
 nvim ~/.zshrc
 ```
 
-Paste this at the very bottom of `~/.zshrc`:
-
-```bash
+- paste these at the very bottom:
+```
 # --- Load Arch System Plugins & Functions ---
 fpath=(/usr/share/zsh/site-functions $fpath)
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -320,99 +296,167 @@ bindkey '^[[B' history-substring-search-down
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 ```
 
-```bash
+```
 zsh
-source ~/.zshrc
-reboot
 ```
 
-## 12. Powerlevel10k
+```
+source ~/.zshrc
+```
 
-```bash
+`reboot`
+
+# ==🟠powerlevel10k==
+```
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 ```
 
-## 13. CachyOS repo
-
-Check which x86-64 level your CPU supports:
-
-```bash
+# ==🟠cachy os repo==
+```
 /lib/ld-linux-x86-64.so.2 --help | grep supported
 ```
 
-```bash
+```
 curl https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
+```
+
+```
 tar xvf cachyos-repo.tar.xz
+```
+
+```
 cd cachyos-repo
+```
+
+```
 sudo ./cachyos-repo.sh
+```
+
+```
 cd
+```
+
+```
 rm -rf cachyos-repo cachyos-repo.tar.xz
+```
+
+```
 sudo pacman -Syu
+```
+
+```
 grep -n "^\[" /etc/pacman.conf
 ```
 
-## 14. CachyOS kernel and scheduler
+# ==🟠cachy os kernel and scheduler==
 
-### Kernel
-
-```bash
+### ==🟣kernel==
+```
 sudo pacman -S linux-cachyos linux-cachyos-headers
 ```
 
-### Scheduler
-
-```bash
+### ==🟣scheduler==
+```
 sudo pacman -S scx-scheds scx-tools
+```
+
+```
 sudo mkdir -p /etc/scx_loader
+```
+
+```
 sudo cp /usr/share/scx_loader/config.toml /etc/scx_loader/config.toml
+```
+
+```
 sudo nvim /etc/scx_loader/config.toml
 ```
 
-Paste these two lines:
-
-```toml
+- paste these two lines:
+```
 default_sched = "scx_bpfland"
 default_mode = "Gaming"
 ```
 
-```bash
+```
 sudo systemctl enable --now scx_loader.service
 ```
 
-### Make the CachyOS kernel the GRUB default
-
-First, locate the CachyOS kernel menu entry:
-
-```bash
+### ==🟣grub default cachy os kernel==
+```
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+- locate the cachy os kernel boot menu entry first:
+```
 grep menuentry /boot/grub/grub.cfg
+```
+
+```
 sudo nvim /etc/default/grub
 ```
 
-Delete these two lines if they exist:
-
+- delete these 2 lines if there any:
 ```
 GRUB_DEFAULT=saved
 GRUB_SAVEDEFAULT=true
 ```
 
-Paste the CachyOS kernel menu entry you found:
-
+- paste the cachy os kernel boot menu entry u found:
 ```
 GRUB_DEFAULT="Advanced options for Arch Linux>Arch Linux, with Linux linux-cachyos"
 ```
 
-```bash
+```
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-## 15. Additional configs
+# ==🟠hibernation==
+```
+SWAP_UUID=$(lsblk -rno UUID,FSTYPE | awk '$2=="swap"{print $1}')
+```
 
-### Aliases
+```
+echo "$SWAP_UUID"
+```
 
-> Skip this step if you copied `.zshrc` from this repo. It already contains them, and running this again would add duplicates.
+```
+sudo sed -i "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\)\"|\1 resume=UUID=$SWAP_UUID\"|" /etc/default/grub
+```
 
-```bash
+```
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+`reboot`
+
+# ==🟠systemd==
+- copy ==🔴== to ==🟣vicinae-suspend@.service== to ==🟣/etc/systemd/system==
+
+```
+sudo systemctl daemon-reload
+```
+
+```
+sudo systemctl enable vicinae-suspend@$USER.service
+```
+
+```
+nvim /etc/systemd/logind.conf 
+```
+
+- uncomment or add these lines:
+```
+HandlePowerKey=ignore
+HandlePowerKeyLongPress=ignore
+HandleLidSwitch=ignore
+```
+
+`reboot`
+
+# ==🟠additional configs==
+### ==🔴aliases==
+```
 echo 'alias tdp1="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --stapm-limit=1000 --fast-limit=1000 --slow-limit=1000"' >> ~/.zshrc
 echo 'alias tdp2="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --stapm-limit=2000 --fast-limit=2000 --slow-limit=2000"' >> ~/.zshrc
 echo 'alias tdp3="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --stapm-limit=3000 --fast-limit=3000 --slow-limit=3000"' >> ~/.zshrc
@@ -422,102 +466,142 @@ echo 'alias tdp6="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --s
 echo 'alias tdp7="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --stapm-limit=7000 --fast-limit=7000 --slow-limit=7000"' >> ~/.zshrc
 echo 'alias tdp8="sudo systemctl stop power-profiles-daemon && sudo ryzenadj --stapm-limit=8000 --fast-limit=8000 --slow-limit=8000"' >> ~/.zshrc
 echo 'alias tdpreset="sudo ryzenadj --stapm-limit=28000 --fast-limit=64000 --slow-limit=28000 && sudo systemctl start power-profiles-daemon"' >> ~/.zshrc
+source ~/.zshrc
 echo 'alias ls="lsd"' >> ~/.zshrc
 echo 'eval "$(zoxide init --cmd cd zsh)"' >> ~/.zshrc
+```
+
+```
 source ~/.zshrc
 ```
 
-### libinput: 4 fingers down to mute
-
-```bash
+### ==🔴libinput 4 fingers down to mute==
+```
 sudo gpasswd -a $USER input
+```
+
+```
 nvim ~/.config/libinput-gestures.conf
 ```
 
-Paste this:
-
+- paste this:
 ```
 gesture swipe down 4 pactl set-sink-mute @DEFAULT_SINK@ toggle
+gesture swipe left 4 swaync-client -op -sw
+gesture swipe right 4 swaync-client -cp -sw
 ```
 
-```bash
+```
 libinput-gestures-setup autostart
-libinput-gestures-setup start
-reboot
 ```
 
-### Bluetooth
+```
+libinput-gestures-setup start
+```
 
-```bash
+`reboot`
+
+### ==🔴bluetooth==
+```
 sudo rfkill unblock bluetooth
+```
+
+```
 sudo systemctl start bluetooth
+```
+
+```
 bluetoothctl power on
+```
+
+```
 sudo systemctl enable bluetooth
+```
+
+```
 sudo nvim /etc/bluetooth/main.conf
 ```
 
-Under `[Policy]` paste:
-
-```ini
+under ==🔴[policy]== paste:
+```
 AutoEnable=true
 ```
 
-```bash
+```
 sudo nvim /etc/udev/rules.d/50-bluetooth.rules
 ```
 
-Paste:
-
+paste:
 ```
 SUBSYSTEM=="rfkill", ATTR{type}=="bluetooth", ATTR{state}="1"
 ```
 
-### systemd
 
-Copy `vicinae-suspend@.service` to `/etc/systemd/system/`, then:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable vicinae-suspend@$USER.service
+### ==🔴open folders in gtk==
+```
+mkdir -p ~/.config/xdg-desktop-portal
 ```
 
-Ignore the power button and lid switch with a logind drop-in:
-
-```bash
-sudo mkdir -p /etc/systemd/logind.conf.d
-sudo nvim /etc/systemd/logind.conf.d/10-ignore.conf
+```
+nvim ~/.config/xdg-desktop-portal/hyprland-portals.conf
 ```
 
-Paste:
-
-```ini
-[Login]
-HandlePowerKey=ignore
-HandlePowerKeyLongPress=ignore
-HandleLidSwitch=ignore
+- add this line:
+```
+org.freedesktop.impl.portal.FileChooser=gtk
 ```
 
-```bash
-reboot
+```
+systemctl --user restart xdg-desktop-portal xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
 ```
 
-### Hibernation
-
-> Your swap should be at least as big as your RAM.
-
-Get the swap UUID and add it to the kernel command line:
-
-```bash
-SWAP_UUID=$(lsblk -rno UUID,FSTYPE | awk '$2=="swap"{print $1}')
-echo "$SWAP_UUID"
-sudo sed -i "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\)\"|\1 resume=UUID=$SWAP_UUID\"|" /etc/default/grub
+```
+xdg-mime default org.gnome.Nautilus.desktop inode/directory
 ```
 
-Add the `resume` hook to `HOOKS` in `/etc/mkinitcpio.conf` (after `udev`, before `filesystems`), then rebuild:
+### ==🔴openmouse permission==
+```
+   echo 'SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1d57", TAG+="uaccess"' | sudo tee /etc/udev/rules.d/70-attackshark.rules
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+```
 
-```bash
-sudo nvim /etc/mkinitcpio.conf
-sudo mkinitcpio -P
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-reboot
+### ==🔴waydroid wifi==
+```
+sudo systemctl start waydroid-container
+```
+
+```
+sudo systemctl enable iptables
+```
+
+```
+sudo iptables -I FORWARD -i waydroid0 -j ACCEPT
+```
+
+```
+sudo iptables -I FORWARD -o waydroid0 -j ACCEPT
+```
+
+```
+sudo iptables -t nat -I POSTROUTING -s 192.168.240.0/24 -j MASQUERADE
+```
+
+```
+sudo iptables-save | sudo tee /etc/iptables/iptables.rules
+```
+
+### ==🔴brokkr==
+```
+sudo tee /etc/udev/rules.d/51-brokkr-samsung.rules <<'EOF'
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0660", TAG+="uaccess"
+EOF
+```
+
+```
+sudo udevadm control --reload-rules
+```
+
+```
+sudo udevadm trigger
 ```
