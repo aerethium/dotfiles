@@ -119,3 +119,28 @@ hl.bind(
 
 -- hyprexpo toggle
 hl.bind("SUPER + W", function() hl.plugin.hyprexpo.expo("toggle") end)
+
+-- Toggle: disable all transparency + blur (SUPER + B)
+local flat_mode = false
+hl.bind(mainMod .. " + B", function()
+    flat_mode = not flat_mode
+    if flat_mode then
+        hl.config({
+            decoration = {
+                active_opacity   = 1.0,
+                inactive_opacity = 1.0,
+                blur = { enabled = false },
+            },
+        })
+        hl.exec_cmd("notify-send -t 1500 'Transparency + blur' 'OFF'")
+    else
+        hl.config({
+            decoration = {
+                active_opacity   = 0.95,
+                inactive_opacity = 0.75,
+                blur = { enabled = true },
+            },
+        })
+        hl.exec_cmd("notify-send -t 1500 'Transparency + blur' 'ON'")
+    end
+end)
