@@ -25,14 +25,17 @@
 
   "hyprland/workspaces": {
     "on-click": "activate",
-    "format": "{name}",
+    "format": "{icon}",
+    "format-icons": {
+      "default": "○",
+      "persistent": "○",
+      "active": "●"
+    },
     "sort-by": "id",
     "persistent-workspaces": {
       "1": [],
       "2": [],
-      "3": [],
-      "4": [],
-      "5": []
+      "3": []
     }
   },
 
@@ -129,9 +132,10 @@
     "scroll-step": 5,
     "format-muted": "󰝟 muted",
     "format-icons": {
-      "headphone": "󰋋",
+      "speaker": ["󰕿", "󰖀", "󰕾"],
+      "headphone": "󰎇",
       "headset": "󰋎",
-      "default": ["󰕿", "󰖀", "󰕾"]
+      "default": "󰎇"
     }
   },
 
