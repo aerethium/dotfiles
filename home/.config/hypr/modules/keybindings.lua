@@ -53,15 +53,36 @@ hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
 
--- Switch workspaces with mainMod + [0-9], move window to workspace with + SHIFT
-for i = 1, 10 do
-    local key = i % 10 -- 10 maps to key 0
-    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+-- Workspaces: A S D = 1 2 3 | Z X C = 4 5 6 (SHIFT + key moves the window there)
+local ws_keys = { A = 1, S = 2, D = 3, Z = 4, X = 5, C = 6 }
+for key, ws in pairs(ws_keys) do
+    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = ws }))
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = ws }))
 end
 
-hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+-- Special (hidden) workspace on SUPER + 1 (SHIFT + 1 sends the window there)
+hl.bind(mainMod .. " + 1", hl.dsp.workspace.toggle_special("magic"))
+hl.bind(mainMod .. " + SHIFT + 1", hl.dsp.window.move({ workspace = "special:magic" }))
+
+-- Extra special workspaces: SUPER + 2 / 3 (SHIFT + key sends the window there)
+hl.bind(mainMod .. " + 2", hl.dsp.workspace.toggle_special("magic2"))
+hl.bind(mainMod .. " + SHIFT + 2", hl.dsp.window.move({ workspace = "special:magic2" }))
+hl.bind(mainMod .. " + 3", hl.dsp.workspace.toggle_special("magic3"))
+hl.bind(mainMod .. " + SHIFT + 3", hl.dsp.window.move({ workspace = "special:magic3" }))
+
+-- SUPER + 0: open a new workspace right after the highest one that exists
+hl.bind(mainMod .. " + 0", function()
+    local ok = pcall(function()
+        local max = 0
+        for _, w in ipairs(hl.get_workspaces()) do
+            if w.id and w.id > max then max = w.id end
+        end
+        hl.dispatch(hl.dsp.focus({ workspace = max + 1 }))
+    end)
+    if not ok then
+        hl.dispatch(hl.dsp.focus({ workspace = "empty" }))
+    end
+end)
 
 -- Scroll through workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
