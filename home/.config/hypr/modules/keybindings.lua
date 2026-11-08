@@ -53,22 +53,20 @@ hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
 
--- Workspaces: A S D = 1 2 3 | Z X C = 4 5 6 (SHIFT + key moves the window there)
-local ws_keys = { A = 1, S = 2, D = 3, Z = 4, X = 5, C = 6 }
+-- Workspaces: SUPER + 1/2/3 = workspaces 1/2/3 | SUPER + A/S/D = workspaces 4/5/6
+-- (SHIFT + key moves the focused window there)
+local ws_keys = { ["1"] = 1, ["2"] = 2, ["3"] = 3, A = 4, S = 5, D = 6 }
 for key, ws in pairs(ws_keys) do
     hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = ws }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = ws }))
 end
 
--- Special (hidden) workspace on SUPER + 1 (SHIFT + 1 sends the window there)
-hl.bind(mainMod .. " + 1", hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + 1", hl.dsp.window.move({ workspace = "special:magic" }))
-
--- Extra special workspaces: SUPER + 2 / 3 (SHIFT + key sends the window there)
-hl.bind(mainMod .. " + 2", hl.dsp.workspace.toggle_special("magic2"))
-hl.bind(mainMod .. " + SHIFT + 2", hl.dsp.window.move({ workspace = "special:magic2" }))
-hl.bind(mainMod .. " + 3", hl.dsp.workspace.toggle_special("magic3"))
-hl.bind(mainMod .. " + SHIFT + 3", hl.dsp.window.move({ workspace = "special:magic3" }))
+-- Special (hidden) workspaces: SUPER + Z / X / C (SHIFT + key sends the window there)
+local special_keys = { Z = "magic", X = "magic2", C = "magic3" }
+for key, name in pairs(special_keys) do
+    hl.bind(mainMod .. " + " .. key, hl.dsp.workspace.toggle_special(name))
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = "special:" .. name }))
+end
 
 -- SUPER + 0: open a new workspace right after the highest one that exists
 hl.bind(mainMod .. " + 0", function()

@@ -1,0 +1,14 @@
+[Unit]
+Description=Stop Vicinae before sleep, start it again after resume (%i)
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+User=%i
+RemainAfterExit=yes
+ExecStart=-/bin/bash -c 'XDG_RUNTIME_DIR=/run/user/$(id -u) systemctl --user stop vicinae.service'
+ExecStop=-/bin/bash -c 'XDG_RUNTIME_DIR=/run/user/$(id -u) systemctl --user start vicinae.service'
+
+[Install]
+WantedBy=sleep.target
