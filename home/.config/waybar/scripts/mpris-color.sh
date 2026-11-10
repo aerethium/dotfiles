@@ -1,40 +1,35 @@
 #!/bin/bash
-
+out="$HOME/.config/waybar/mpris-color.css"
+tmp="/tmp/waybar_mpris_art"
 prev_url=""
 
 while true; do
   url=$(playerctl metadata mpris:artUrl 2>/dev/null)
-
-  if [ -z "$url" ]; then
-    sleep 2
-    continue
+  if [ -z "$url" ] || [ "$url" = "$prev_url" ]; then
+    sleep 2; continue
   fi
-
-  if [ "$url" = "$prev_url" ]; then
-    sleep 2
-    continue
-  fi
-
   prev_url="$url"
 
-  tmp="/tmp/waybar_mpris_art"
+  rm -f "$tmp"
   if [[ "$url" == file://* ]]; then
-    cp "${url#file://}" "$tmp" 2>/dev/null
+    path=$(python3 -c 'import sys,urllib.parse as u; print(u.unquote(sys.argv[1][7:]))' "$url")
+    cp "$path" "$tmp" 2>/dev/null
   else
-    curl -s -o "$tmp" "$url" 2>/dev/null
+    curl -sL -o "$tmp" "$url" 2>/dev/null
   fi
 
-  color=$(python3 - << 'PYEOF'
-from colorthief import ColorThief
+  color=$(python3 - <<'PYEOF'
 try:
-    ct = ColorThief("/tmp/waybar_mpris_art")
-    r, g, b = ct.get_color(quality=1)
+    from colorthief import ColorThief
+    r, g, b = ColorThief("/tmp/waybar_mpris_art").get_color(quality=1)
     print(f"{r},{g},{b}")
-except:
+except Exception:
     print("61,61,61")
 PYEOF
 )
+  [ -z "$color" ] && color="61,61,61"
 
-  echo "#mpris { border-color: rgba(${color}, 1); background-color: rgba(${color}, 0.15); }" > ~/.config/waybar/mpris-color.css
+  echo "window#waybar #mpris { border-color: rgba(${color}, 1); background-color: rgba(${color}, 0.15); }" > "$out"
+  pkill -SIGUSR2 waybar
   sleep 2
 done

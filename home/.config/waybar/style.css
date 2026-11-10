@@ -1,3 +1,4 @@
+@import url("mpris-color.css");
 @define-color fg #d4d4d4;
 @define-color bg rgba(14, 14, 14, 0.72);
 @define-color bg-solid rgba(14, 14, 14, 0.95);
@@ -27,7 +28,7 @@ window#waybar.empty #window {
   margin: 0;
 }
 
-mpris.empty { background: transparent; }
+#mpris.empty { background: transparent; }
 
 /* ── workspaces ── */
 
@@ -171,7 +172,6 @@ tooltip {
 tooltip label { color: @fg; }
 
 .hidden { opacity: 0; }
-@import url("mpris-color.css");
 
 /* ── battery states FINAL ── */
 #battery                         { color: #7dae7d; border-color: #2a422a; }
