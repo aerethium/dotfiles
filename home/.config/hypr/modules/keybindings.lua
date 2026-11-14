@@ -55,7 +55,7 @@ hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
 
 -- Workspaces: SUPER + 1/2/3 = workspaces 1/2/3 | SUPER + A/S/D = workspaces 4/5/6
 -- (SHIFT + key moves the focused window there)
-local ws_keys = { ["1"] = 1, ["2"] = 2, ["3"] = 3, A = 4, S = 5, D = 6 }
+local ws_keys = { ["1"] = 1, ["2"] = 2, ["3"] = 3, A = 4, S = 5, D = 6, ["7"] = 7, ["8"] = 8, ["9"] = 9 }
 for key, ws in pairs(ws_keys) do
     hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = ws }))
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = ws }))
