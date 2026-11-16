@@ -142,3 +142,7 @@ hl.bind(mainMod .. " + B", function()
         hl.exec_cmd("notify-send -t 1500 'Transparency + blur' 'ON'")
     end
 end)
+
+-- Snappy Switcher: ALT + TAB / ALT + SHIFT + TAB (MRU window switcher)
+hl.bind("ALT + Tab", hl.dsp.exec_cmd("snappy-switcher next --mod alt"))
+hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("snappy-switcher prev --mod alt"))
