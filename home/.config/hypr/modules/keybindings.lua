@@ -115,8 +115,6 @@ hl.bind(
     hl.dsp.exec_cmd([[grim -g "$(slurp)" /tmp/screenshot.png && wl-copy < /tmp/screenshot.png && cp /tmp/screenshot.png ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png]])
 )
 
--- hyprexpo toggle
-hl.bind("SUPER + W", function() hl.plugin.hyprexpo.expo("toggle") end)
 
 -- Toggle: disable all transparency + blur (SUPER + B)
 local flat_mode = false
@@ -176,3 +174,31 @@ hl.bind(mainMod .. " + minus", function()
     night_temp = math.min(6000, night_temp + 250)
     apply_night(night_temp .. "K")
 end, { repeating = true })
+
+-- Load plugins at startup
+hl.on("hyprland.start", function()
+  hl.exec_cmd("hyprpm reload -n")
+end)
+
+-- hymission settings (optional, delete if you want the defaults)
+hl.config({
+  plugin = {
+    hymission = {
+      toggle_switch_mode = 1,
+      switch_toggle_auto_next = 1,
+      switch_release_key = "Super_L",
+    },
+  },
+})
+
+
+
+if hl.plugin and hl.plugin.hymission then
+  hl.bind("SUPER + TAB", hl.plugin.hymission.toggle)
+  hl.bind("SUPER + SHIFT + TAB", function()
+    hl.plugin.hymission.toggle("reverse")
+  end)
+end
+
+
+

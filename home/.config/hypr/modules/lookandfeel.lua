@@ -101,3 +101,5 @@ if hl.plugin.hyprexpo ~= nil then
         },
     })
 end
+
+

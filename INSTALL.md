@@ -132,17 +132,17 @@ flatpak install flathub -y io.github.kolunmi.Bazaar org.gnome.Maps org.vinegarhq
 
 ```
 
-# ==🟠installing hyprexpo==
+# ==🟠installing hymission==
 ```
 hyprpm update
 ```
 
 ```
-hyprpm add https://github.com/sandwichfarm/hyprexpo
+hyprpm add https://github.com/gfhdhytghd/hymission
 ```
 
 ```
-hyprpm enable hyprexpo
+hyprpm enable hymission
 ```
 
 ```
@@ -567,3 +567,4 @@ git config --global user.email "302626587+aerethium@users.noreply.github.com"
 ```
 
 ---
+- [l] linked to: [[hyprland dotfiles.idx]]
