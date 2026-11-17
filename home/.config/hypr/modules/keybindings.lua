@@ -146,3 +146,33 @@ end)
 -- Snappy Switcher: ALT + TAB / ALT + SHIFT + TAB (MRU window switcher)
 hl.bind("ALT + Tab", hl.dsp.exec_cmd("snappy-switcher next --mod alt"))
 hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("snappy-switcher prev --mod alt"))
+
+-- Night light: SUPER + L toggle | SUPER + = warmer | SUPER + - cooler
+local night_light = true
+local night_temp  = 4000
+
+local function apply_night(msg)
+    if night_light then
+        hl.exec_cmd("hyprctl hyprsunset temperature " .. night_temp)
+    else
+        hl.exec_cmd("hyprctl hyprsunset identity")
+    end
+    hl.exec_cmd("notify-send -t 1500 'Night light' '" .. msg .. "'")
+end
+
+hl.bind(mainMod .. " + L", function()
+    night_light = not night_light
+    apply_night(night_light and ("ON " .. night_temp .. "K") or "OFF")
+end)
+
+hl.bind(mainMod .. " + equal", function()
+    night_light = true
+    night_temp = math.max(1500, night_temp - 250)
+    apply_night(night_temp .. "K")
+end, { repeating = true })
+
+hl.bind(mainMod .. " + minus", function()
+    night_light = true
+    night_temp = math.min(6000, night_temp + 250)
+    apply_night(night_temp .. "K")
+end, { repeating = true })

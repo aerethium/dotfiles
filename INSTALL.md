@@ -39,7 +39,7 @@ makepkg -si
 
 # ==🟠installing essential packages for a working hyprland==
 ```
-sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd cava network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum git-filter-repo
+sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd cava network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum git-filter-repo hyprsunset 
 ```
 
 ```

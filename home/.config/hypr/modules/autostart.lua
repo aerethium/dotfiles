@@ -15,5 +15,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("waypaper --restore")
     hl.exec_cmd("snappy-switcher --daemon")
     hl.exec_cmd("hyprpm reload -n")
+    hl.exec_cmd("hyprsunset")
 
 end)
