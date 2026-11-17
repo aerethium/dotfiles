@@ -1,74 +1,4 @@
 ---
-
-#formating_partition
-- lsblk
-- cfdisk /dev/nvme0n1
-- mkfs.btrfs /dev/nvme(root part)
-- mount /dev/nvme(root part) /mnt
-- cd /mnt
-- btrfs subvolume create @
-- btrfs subvolume create @home
-- cd
-- pwd
-- umount /mnt
-- mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@ /dev/nvme(root part) /mnt
-- mkdir /mnt/home
-- mount -o noatime,ssd,compress=zstd,space_cache=v2,discard=async,subvol=@home /dev/nvme(root part) /mnt/home
-- btrfs subvolume list /mnt
-- mkfs.fat -F32 /dev/nvme(efi part)
-- mkswap /dev/nvme(swap part)
-- swapon /dev/nvme(swap part)
-- mkdir /mnt/boot
-- mount /dev/nvme(efi part) /mnt/boot
-- lsblk
-- lsblk -f
-
-#connect_to_wifi
-- iwctl station wlan0 scan
-- iwctl station wlan0 get-networks
-- iwctl --passphrase 'password' station wlan0 connect 'wifi ssid'
-
-#linux_firmware
-- pacstrap /mnt base linux linux-firmware
-- genfstab -U /mnt > /mnt/etc/fstab
-- arch-chroot /mnt
-
-#arch_chrooting
-- passwd
-- ln -sf /usr/share/zoneinfo/Africa/Casablanca /etc/localtime
-- hwclock --systohc
-- echo "KEYMAP=us" > /etc/vconsole.conf
-- pacman -S nvim
-- nvim /etc/locale.gen
-- uncomment: en_US.UTF-8 UTF-8
-- locale-gen
-- echo "LANG=en_US.UTF-8" > /etc/locale.conf
-- echo "user name" > /etc/hostname
-- pacman -S grub efibootmgr sudo nvim  networkmanager git base-devel os-prober
-- systemctl enable NetworkManager.service
-
-#grub
-- grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-- nvim /etc/default/grub
-- GRUB_TIMEOUT=5 from 5 to 7
-- add this line:
-- GRUB_DISABLE_OS_PROBER=false
-- grub-mkconfig -o /boot/grub/grub.cfg
-
-#final_touches
-- useradd -m -G wheel -s /bin/bash user name
-- passwd user name
-- EDITOR=nvim visudo
-- uncomment this line: %wheel ALL=(ALL:ALL) ALL, its under: uncomment to allow members of group wheel to execute any commande
-- usermod -aG audio,video,storage user name
-- su user name
-- sudo pacman -Syyu
-- exit
-- exit
-- umount -R /mnt
-- reboot 
-
----
 - [?] whats required:
 - ==🟣a working minimal arch installation with these packages: ==
 
@@ -109,11 +39,11 @@ makepkg -si
 
 # ==🟠installing essential packages for a working hyprland==
 ```
-sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd cava network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum 
+sudo pacman -S pipewire pipewire-pulse pipewire-jack pipewire-alsa wireplumber pavucontrol wiremix lib32-mesa lib32-vulkan-icd-loader lib32-libglvnd lib32-alsa-plugins lib32-libpulse hyprland uwsm sddm hyprlock hyprsunset hyprpolkitagent qt5-wayland qt6-wayland xdg-desktop-portal-hyprland xdg-user-dirs swaync grim slurp satty wl-clipboard cliphist bluez bluez-utils bluetui impala brightnessctl swayosd power-profiles-daemon nautilus gvfs-mtp dolphin kitty btrfs-progs cava fuse3 noto-fonts noto-fonts-emoji ttf-nerd-fonts-symbols ttf-font-awesome ttf-jetbrains-mono-nerd cava network-manager-applet tumbler playerctl python-colorthief syncthing jq hypridle hyprpm qt5ct qt6ct kvantum git-filter-repo
 ```
 
 ```
-paru -S vicinae-bin zen-browser-bin whatsapp-linux-desktop-bin waybar-cava mpvpaper wttrbar wlogout waypaper libinput-gestures obsidian-bin linux-wallpaperengine-git
+paru -S vicinae-bin zen-browser-bin whatsapp-linux-desktop-bin waybar-cava mpvpaper wttrbar wlogout waypaper libinput-gestures obsidian-bin linux-wallpaperengine-git snappy-switcher
 ```
 # ==🟠starting essential services==
 ```
@@ -160,11 +90,11 @@ sudo loginctl enable-linger $USER
 - proceed the following
 # ==🟠installing additional apps and packages==
 ```
-sudo pacman -S ffmpeg mpv awww fzf yazi zoxide rclone btop ffmpegthumbnailer speech-dispatcher python-pipx python-pip man-db man-pages gdb clang testdisk android-tools unzip tree flatpak kdeconnect docker docker-compose imv sushi ollama nodejs npm lsd veracrypt steam timeshift gparted cmatrix nvtop mpv obs-studio scrcpy torbrowser-launcher mangohud baobab qbittorrent wine winetricks libvirt qemu-full virt-manager virt-viewer libvirt dnsmasq ebtables iptables-nft swtpm edk2-ovmf virt-install qemu-img libosinfo guestfs-tools tauon-music-box gimp gnome-software flatpak nwg-look qt5ct qt6ct gnome-themes-extra dconf xdg-desktop-portal-gtk adw-gtk-theme gnome-tweaks gnome-control-center extension-manager gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav sushi zsh zsh-autosuggestions zsh-completions zsh-doc zsh-history-substring-search zsh-lovers zsh-syntax-highlighting zshdb discord
+sudo pacman -S ffmpeg mpv awww fzf yazi zoxide rclone btop ffmpegthumbnailer speech-dispatcher python-pipx python-pip man-db man-pages gdb clang testdisk android-tools unzip tree flatpak kdeconnect docker docker-compose imv sushi ollama nodejs npm lsd veracrypt steam timeshift gparted cmatrix nvtop mpv obs-studio scrcpy torbrowser-launcher mangohud baobab qbittorrent wine winetricks libvirt qemu-full virt-manager virt-viewer libvirt dnsmasq ebtables iptables-nft swtpm edk2-ovmf virt-install qemu-img libosinfo guestfs-tools tauon-music-box gimp gnome-software flatpak nwg-look qt5ct qt6ct gnome-themes-extra dconf xdg-desktop-portal-gtk adw-gtk-theme gnome-tweaks gnome-control-center extension-manager gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav sushi zsh zsh-autosuggestions zsh-completions zsh-doc zsh-history-substring-search zsh-lovers zsh-syntax-highlighting zshdb discord 
 ```
 
 ```
-paru -S rclone fuse3 syncthingtray metadata-cleaner hypnotix waydroid freedownloadmanager ventoy-bin neofetch fastfetch mission-center angrysearch cpu-x kdiskmark geforcenow-electron-bin an-anime-game-launcher-bin goverlay peaclock localsend-bin lutris sklauncher-bin xclicker pacseek-bin qdiskinfo cpio cmake meson gcc lavat-git fetch-git vencord-installer telegram-desktop-bin pipes.sh ryzenadj wine brokkr-flash-appimage
+paru -S rclone fuse3 syncthingtray metadata-cleaner hypnotix waydroid freedownloadmanager ventoy-bin neofetch fastfetch mission-center angrysearch cpu-x kdiskmark geforcenow-electron-bin an-anime-game-launcher-bin goverlay peaclock localsend-bin lutris sklauncher-bin jdk25-openjdk xclicker pacseek-bin qdiskinfo cpio cmake meson gcc lavat-git fetch-git vencord-installer telegram-desktop-bin pipes.sh ryzenadj wine brokkr-flash-appimage stremio
 ```
 
 ```
@@ -173,6 +103,18 @@ pipx ensurepath
 
 ```
 pipx install norminette
+```
+
+```
+pipx install tldr
+```
+
+```
+pipx ensurepath
+```
+
+```
+source ~/.zshrc
 ```
 
 ```
@@ -210,28 +152,37 @@ hyprpm reload
 # ==🟠applying dark theme and mac os tahoe dark theme==
 
 - [!] run them in the right order
-### ==🟣mac os tahoe dark theme==
+### ==🟣mac os tahoe dark theme and icons==
 ```
 git clone https://github.com/kayozxo/GNOME-macOS-Tahoe
 ```
 
 ```
-cd GNOME-macOS-Tahoe
+cd GNOME-macOS-Tahoe && ./install.sh -d --color orange -la && cd ..
 ```
 
 ```
-./install.sh
+cp -a gtk/Tahoe-Dark-Orange ~/.themes/ && cd ..
 ```
 
-- choose the dark orange theme
+```
+mkdir -p ~/.icons
+```
 
+```
+git clone --depth 1 https://github.com/vinceliuice/MacTahoe-icon-theme.git
+```
+
+```
+cd MacTahoe-icon-theme && ./install.sh -d ~/.icons && cd ..
+```
+
+```
+rm -rf ~/.themes/*.backup.*
+```
 ### ==🟣dark theme==
 ```
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-```
-
-```
-gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
 ```
 
 ```
@@ -605,3 +556,14 @@ sudo udevadm control --reload-rules
 ```
 sudo udevadm trigger
 ```
+
+# ==🔴git==
+```
+git config --global user.name "aerethium"
+```
+
+```
+git config --global user.email "302626587+aerethium@users.noreply.github.com"
+```
+
+---
