@@ -146,7 +146,7 @@ hl.bind("ALT + Tab", hl.dsp.exec_cmd("snappy-switcher next --mod alt"))
 hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("snappy-switcher prev --mod alt"))
 
 -- Night light: SUPER + L toggle | SUPER + = warmer | SUPER + - cooler
-local night_light = true
+local night_light = false
 local night_temp  = 4000
 
 local function apply_night(msg)
