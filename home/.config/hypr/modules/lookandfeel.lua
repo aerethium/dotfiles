@@ -134,4 +134,42 @@ hl.config({
     },
 })
 
+if hl.plugin.dynamic_cursors then
+  hl.config { plugin = { dynamic_cursors = {
+    enabled = true,
 
+    -- default behaviour for every cursor
+    mode = "rotate",
+    threshold = 1,
+
+    rotate = {
+      length = 24,   -- matches your cursor size
+      offset = 0.0,  -- tweak if the arrow points the wrong way while moving
+    },
+
+    stretch = {
+      limit = 3000,
+      activation = "quadratic",
+      window = 100,
+    },
+
+    -- shake to find, capped at your Twilight theme's biggest image (48px = 24 x 2)
+    shake = {
+      enabled = true,
+      base = 2.0,
+      limit = 2.0,
+      timeout = 5000,
+      effects = true,
+    },
+
+    hyprcursor = {
+      enabled = true,
+      nearest = 1,
+      resolution = -1,   -- loads magnified shapes at 24 x base = 48px
+    },
+  }}}
+
+  -- stretch on the hand and grab cursors, rotate everywhere else
+  hl.plugin.dynamic_cursors.shape_rule { shape = "pointer", mode = "stretch" }
+  hl.plugin.dynamic_cursors.shape_rule { shape = "grab",    mode = "stretch" }
+end
