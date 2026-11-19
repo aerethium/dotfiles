@@ -2,16 +2,26 @@
 hl.config({
     general = {
         resize_on_border = true,
-        layout      = "dwindle",
+        layout      = "scrolling",
         gaps_in     = 5,
-        gaps_out    = 10,
-        border_size = 2,
+        gaps_out    = 5,
+        border_size = 1,
         col = {
             active_border   = "rgba(3d3d3dff)",
             inactive_border = "rgba(1a1a1aff)",
         },
     },
 })
+
+hl.config({
+    scrolling = {
+        column_width = 0.5,
+        fullscreen_on_one_column = true,
+        focus_fit_method = 1,
+        explicit_column_widths = "0.5, 1.0",
+    },
+})
+
 
 hl.config({
     dwindle = {
@@ -58,7 +68,8 @@ hl.config({
         active_opacity     = 0.95,
         inactive_opacity   = 0.75,
         fullscreen_opacity = 1.0,
-        rounding           = 6,
+        rounding           = 16,
+		rounding_power     = 4.0,
         dim_inactive       = true,
         dim_strength       = 0.15,
         blur = {
@@ -101,5 +112,26 @@ if hl.plugin.hyprexpo ~= nil then
         },
     })
 end
+
+
+
+
+hl.config({
+    plugin = {
+        scrolloverview = {
+            gesture_distance = 300,
+            scale = 0.5,
+            workspace_gap = 100,
+            layout = "vertical",
+            wallpaper = 2,
+            blur = true,
+
+            shadow = {
+                enabled = true,
+                range = 50,
+            },
+        },
+    },
+})
 
 

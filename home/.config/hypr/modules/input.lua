@@ -32,20 +32,25 @@ hl.device({
 
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
-hl.gesture({
-    fingers = 3,
-    direction = "up",
-    action = function() hl.plugin.hyprexpo.expo("toggle") end,
-})
-
-hl.gesture({
-    fingers = 3,
-    direction = "down",
-    action = function() hl.plugin.hyprexpo.expo("off") end,
-})
 
 hl.window_rule({
     name  = "kitty-touchpad-scroll",
     match = { class = "(kitty)" },
     scroll_touchpad = 1.5,
+})
+
+hl.gesture({
+    fingers = 3,
+    direction = "up",
+    action = function()
+        hl.dispatch(hl.plugin.scrolloverview.overview("on"))
+    end,
+})
+
+hl.gesture({
+    fingers = 3,
+    direction = "down",
+    action = function()
+        hl.dispatch(hl.plugin.scrolloverview.overview("off"))
+    end,
 })

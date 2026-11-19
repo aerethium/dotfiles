@@ -201,4 +201,10 @@ if hl.plugin and hl.plugin.hymission then
 end
 
 
+hl.bind("SUPER + R", hl.dsp.layout("colresize +conf"))
 
+
+
+hl.bind("SUPER + w", function()
+    hl.plugin.scrolloverview.overview("toggle all")
+end)
