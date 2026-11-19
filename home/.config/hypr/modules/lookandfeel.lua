@@ -119,13 +119,12 @@ if hl.plugin.dynamic_cursors then
   hl.config { plugin = { dynamic_cursors = {
     enabled = true,
 
-    -- default behaviour for every cursor
     mode = "rotate",
     threshold = 1,
 
     rotate = {
-      length = 24,   -- matches your cursor size
-      offset = 0.0,  -- tweak if the arrow points the wrong way while moving
+      length = 24,
+      offset = 0.0,
     },
 
     stretch = {
@@ -134,7 +133,6 @@ if hl.plugin.dynamic_cursors then
       window = 100,
     },
 
-    -- shake to find, capped at your Twilight theme's biggest image (48px = 24 x 2)
     shake = {
       enabled = true,
       base = 2.0,
@@ -146,7 +144,7 @@ if hl.plugin.dynamic_cursors then
     hyprcursor = {
       enabled = true,
       nearest = 1,
-      resolution = -1,   -- loads magnified shapes at 24 x base = 48px
+      resolution = -1,
     },
   }}}
 
